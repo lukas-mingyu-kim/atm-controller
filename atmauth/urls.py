@@ -1,8 +1,8 @@
 from django.urls import path
 
-from atmauth import views
+from atmauth.views import SigninApiView
 
 
 urlpatterns = [
-    path('signin', views.SigninApiView.as_view()),
+    path('signin', SigninApiView.as_view()),
 ]

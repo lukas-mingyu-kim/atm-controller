@@ -3,13 +3,13 @@ from rest_framework import status
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
-from atmauth import serializers
-from atmauth import models
+from atmauth.serializers import SigninSerializer
+from atmauth.models import AtmUser
 
 
 class SigninApiView(ObtainAuthToken):
 
-    serializer_class = serializers.SigninSerializer
+    serializer_class = SigninSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -20,17 +20,14 @@ class SigninApiView(ObtainAuthToken):
             if not self._is_pin_valid(card_num, pin_num):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-            if not models.AtmUser.objects.filter(card_num=card_num).exists():
-                user = models.AtmUser.objects.create_user(card_num=card_num, password=pin_num)
+            if not AtmUser.objects.filter(card_num=card_num).exists():
+                user = AtmUser.objects.create_user(
+                    card_num=card_num, password=pin_num)
                 user.save()
             else:
-                user = models.AtmUser.objects.get(card_num=card_num)
+                user = AtmUser.objects.get(card_num=card_num)
 
-            try:
-                token, created = Token.objects.get_or_create(user=user)
-            except Exception as e:
-                print(e)
-
+            token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'user_id': user.id,
                 'token': token.key
