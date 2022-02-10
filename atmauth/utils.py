@@ -6,6 +6,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
 
 
+def is_token_expired(token):
+    min_age = timezone.now() - timedelta(
+        seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS)
+    return token.created < min_age
+
+
 class ExpiringTokenAuthentication(TokenAuthentication):
     def authenticate_credentials(self, key):
         try:
@@ -16,13 +22,6 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         if not token.user.is_active:
             raise AuthenticationFailed("User inactive or deleted")
 
-        if self._is_token_expired(token):
-            token.delete()
-            Token.objects.create(user=token.user)
+        if is_token_expired(token):
             raise AuthenticationFailed("Token has expired")
         return token.user, token
-
-    def _is_token_expired(self, token):
-        min_age = timezone.now() - timedelta(
-            seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS)
-        return token.created < min_age

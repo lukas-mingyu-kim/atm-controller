@@ -5,6 +5,7 @@ from rest_framework.authtoken.models import Token
 
 from atmauth.serializers import SigninSerializer
 from atmauth.models import AtmUser
+from atmauth.utils import is_token_expired
 
 
 class SigninApiView(ObtainAuthToken):
@@ -28,6 +29,10 @@ class SigninApiView(ObtainAuthToken):
                 user = AtmUser.objects.get(card_num=card_num)
 
             token, created = Token.objects.get_or_create(user=user)
+            if is_token_expired(token):
+                token.delete()
+                token = Token.objects.create(user=token.user)
+
             return Response({
                 'user_id': user.id,
                 'token': token.key

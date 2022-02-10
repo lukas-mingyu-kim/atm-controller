@@ -1,7 +1,11 @@
-from rest_framework.views import APIView
+from django.db import transaction
+from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 
-from api.serializers import AtmSerializer, AccountSerializer
+from api.serializers import AtmSerializer, AccountSerializer, BalanceSerializer
+from api.models import Account
 from atmauth.utils import ExpiringTokenAuthentication
 
 
@@ -11,23 +15,41 @@ class HealthCheckApiView(APIView):
         return Response('Healthy')
 
 
-class AccountApiView(APIView):
+class AccountListApiView(APIView):
 
     authentication_classes = (ExpiringTokenAuthentication,)
-    serializer_class = AtmSerializer
 
     def get(self, request):
         user = request.user
         user_accounts = user.account_set.all()
-        serializer = AccountSerializer(user_accounts, many=True)
-        return Response({'accounts': serializer.data})
+        return Response({'accounts': user_accounts.values_list('account_num', flat=True)})
+
+
+class AccountGetApiView(APIView):
+
+    authentication_classes = (ExpiringTokenAuthentication,)
+
+    def get(self, request, account_num):
+        user = request.user
+        account = Account.objects.filter(
+            user=user,
+            account_num=account_num
+        ).first()
+
+        if not account:
+            return Response(
+                f"Given account number ({account_num}) for this user does not exist.",
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = AccountSerializer(account)
+        return Response(serializer.data)
 
 #
 # class DepositWithdrawApiView(APIView):
 #
 #     authentication_classes = (ExpiringTokenAuthentication,)
-#     permission_classes = (permissions.OwnAccount,)
-#     serializer_class = serializers.BalanceSerializer
+#     serializer_class = BalanceSerializer
 #
 #     def post(self, request, user_id):
 #         serializer = self.serializer_class(data=request.data)
@@ -37,10 +59,13 @@ class AccountApiView(APIView):
 #             account_num = serializer.validated_data.get('account_num')
 #             amount = serializer.validated_data.get('amount')
 #
-#             account = models.Account.objects.filter(user__id=user_id, account_num=account_num).first()
+#             account = Account.objects.filter(
+#                 user__id=user_id,
+#                 account_num=account_num
+#             ).first()
 #             if not account:
 #                 return Response(
-#                     "No such account",
+#                     f"Given account number ({account_num}) does not exist.",
 #                     status=status.HTTP_400_BAD_REQUEST
 #                 )
 #
@@ -68,14 +93,14 @@ class AccountApiView(APIView):
 #                 status=status.HTTP_400_BAD_REQUEST
 #             )
 #
-#     def _can_withdraw_from_bin(self, amount):
-#         # TODO: check cash bin for enough cash to withdraw
+#     def _can_withdraw_from_bin(self, amount: int) -> bool:
+#         # TODO: check if the cash bin has enough cash to withdraw
 #         return True
 #
-#     def _deposit_bin(self, amount):
-#         # TODO: send call to cash bin to deposit
-#         return
+#     def _deposit_bin(self, amount: int) -> bool:
+#         # TODO: send call to cash bin to deposit and return if it was successful
+#         return True
 #
-#     def _withdraw_bin(self, amount):
-#         # TODO: send call to cash bin to deposit
-#         return
+#     def _withdraw_bin(self, amount) -> bool:
+#         # TODO: send call to cash bin to withdraw and return if it was successful
+#         return True

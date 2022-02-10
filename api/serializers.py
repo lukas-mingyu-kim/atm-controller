@@ -18,4 +18,4 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('account_num', 'user', 'balance')
-        extra_kwargs = {'user': {'read_only': True}}
+        # extra_kwargs = {'user': {'read_only': True}}
