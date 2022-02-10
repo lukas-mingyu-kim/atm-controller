@@ -4,13 +4,8 @@ from rest_framework import serializers
 from api.models import Account
 
 
-class AtmSerializer(serializers.Serializer):
-    card_num = serializers.CharField(max_length=20)
-
-
-class BalanceSerializer(serializers.Serializer):
-    account_num = serializers.CharField(max_length=20)
-    amount = serializers.IntegerField()
+class DepositWithdrawSerializer(serializers.Serializer):
+    amount = serializers.IntegerField(min_value=0)
 
 
 class AccountSerializer(serializers.ModelSerializer):
