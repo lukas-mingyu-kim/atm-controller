@@ -34,7 +34,7 @@ class SampleApiTests(TestCase):
         _, token = self._signin(TEST_CARD_NUM)
         account_response = self.client.get(
             '/api/accounts',
-            **{'HTTP_AUTHORIZATION': f'Token {token}'}
+            **{'HTTP_AUTHORIZATION': f'Token {token}'},
         )
 
         self.assertEquals(account_response.status_code, 200)
@@ -47,18 +47,19 @@ class SampleApiTests(TestCase):
         user_id, token = self._signin(TEST_CARD_NUM)
         account_response = self.client.get(
             f'/api/accounts/{TEST_ACCOUNT_NUM1}',
-            **{'HTTP_AUTHORIZATION': f'Token {token}'}
+            **{'HTTP_AUTHORIZATION': f'Token {token}'},
         )
         self._check_account_response(account_response, user_id, TEST_DEFAULT_BALANCE)
 
     def test_deposit(self):
         user_id, token = self._signin(TEST_CARD_NUM)
         deposit_amount = 1000
-        deposit_response = self.client.post(
+        deposit_response = self.client.patch(
             f'/api/accounts/{TEST_ACCOUNT_NUM1}/deposit',
             data={
                 'amount': deposit_amount,
             },
+            content_type="application/json",
             **{'HTTP_AUTHORIZATION': f'Token {token}'},
         )
         self._check_account_response(deposit_response, user_id, TEST_DEFAULT_BALANCE + deposit_amount)
@@ -66,11 +67,12 @@ class SampleApiTests(TestCase):
     def test_withdraw(self):
         user_id, token = self._signin(TEST_CARD_NUM)
         withdraw_amount = 1000
-        withdraw_response = self.client.post(
+        withdraw_response = self.client.patch(
             f'/api/accounts/{TEST_ACCOUNT_NUM2}/withdraw',
             data={
                 'amount': withdraw_amount,
             },
+            content_type="application/json",
             **{'HTTP_AUTHORIZATION': f'Token {token}'},
         )
         self._check_account_response(withdraw_response, user_id, TEST_DEFAULT_BALANCE - withdraw_amount)
@@ -78,11 +80,12 @@ class SampleApiTests(TestCase):
     def test_withdraw_fail(self):
         user_id, token = self._signin(TEST_CARD_NUM)
         withdraw_amount = TEST_DEFAULT_BALANCE * 2
-        withdraw_response = self.client.post(
+        withdraw_response = self.client.patch(
             f'/api/accounts/{TEST_ACCOUNT_NUM2}/withdraw',
             data={
                 'amount': withdraw_amount,
             },
+            content_type="application/json",
             **{'HTTP_AUTHORIZATION': f'Token {token}'},
         )
         self.assertEquals(withdraw_response.status_code, 400)

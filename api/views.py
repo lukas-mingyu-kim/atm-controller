@@ -50,7 +50,7 @@ class DepositWithdrawApiView(APIView):
     authentication_classes = (ExpiringTokenAuthentication,)
     serializer_class = DepositWithdrawSerializer
 
-    def post(self, request, account_num):
+    def patch(self, request, account_num):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
