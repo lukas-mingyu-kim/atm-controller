@@ -37,7 +37,7 @@ class AccountGetApiView(APIView):
 
         if not account:
             return Response(
-                f"Given account number ({account_num}) for this user does not exist.",
+                {'detail': f"Given account number ({account_num}) for this user does not exist."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -65,7 +65,7 @@ class DepositWithdrawApiView(APIView):
 
             if not account:
                 return Response(
-                    f"Given account number ({account_num}) this user does not exist.",
+                    {'detail': f"Given account number ({account_num}) for this user does not exist."},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -77,12 +77,12 @@ class DepositWithdrawApiView(APIView):
                 else:
                     if account.balance - amount < 0:
                         return Response(
-                            "Balance not sufficient.",
+                            {'detail': "Balance not sufficient."},
                             status=status.HTTP_400_BAD_REQUEST
                         )
                     if not self._can_withdraw_from_bin(amount):
                         return Response(
-                            "Cash not sufficient in the bin.",
+                            {'detail': "Cash not sufficient in the bin."},
                             status=status.HTTP_422_UNPROCESSABLE_ENTITY
                         )
 

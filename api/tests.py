@@ -51,6 +51,26 @@ class SampleApiTests(TestCase):
         )
         self._check_account_response(account_response, user_id, TEST_DEFAULT_BALANCE)
 
+    def test_get_account_wrong_token(self):
+        user_id, token = self._signin(TEST_CARD_NUM)
+        account_response = self.client.get(
+            f'/api/accounts/{TEST_ACCOUNT_NUM1}',
+            **{'HTTP_AUTHORIZATION': f'Token {token[:-1]}'},
+        )
+        self.assertEquals(account_response.status_code, 401)
+        self.assertEquals(str(account_response.data['detail']), 'Invalid token')
+
+    def test_get_wrong_account(self):
+        wrong_account_num = 'WRONG_ACCOUNT_NUM'
+        user_id, token = self._signin(TEST_CARD_NUM)
+        account_response = self.client.get(
+            f'/api/accounts/{wrong_account_num}',
+            **{'HTTP_AUTHORIZATION': f'Token {token}'},
+        )
+        self.assertEquals(account_response.status_code, 404)
+        self.assertEquals(account_response.data['detail'],
+                          f'Given account number ({wrong_account_num}) for this user does not exist.')
+
     def test_deposit(self):
         user_id, token = self._signin(TEST_CARD_NUM)
         deposit_amount = 1000
@@ -89,7 +109,7 @@ class SampleApiTests(TestCase):
             **{'HTTP_AUTHORIZATION': f'Token {token}'},
         )
         self.assertEquals(withdraw_response.status_code, 400)
-        self.assertEquals(withdraw_response.data, 'Balance not sufficient.')
+        self.assertEquals(withdraw_response.data['detail'], 'Balance not sufficient.')
 
         account_response = self.client.get(
             f'/api/accounts/{TEST_ACCOUNT_NUM2}',
