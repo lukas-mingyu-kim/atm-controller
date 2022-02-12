@@ -91,7 +91,7 @@ class DepositWithdrawApiView(APIView):
                     self._withdraw_bin(amount)
 
             serializer = AccountSerializer(account)
-            return Response({'account': serializer.data})
+            return Response(serializer.data)
         else:
             return Response(
                 serializer.errors,

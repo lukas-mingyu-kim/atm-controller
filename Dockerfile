@@ -10,6 +10,6 @@ ADD . /app/
 
 RUN python manage.py makemigrations
 RUN python manage.py migrate
-RUN python manage.py setup_dummy
 RUN python manage.py test
+RUN python manage.py setup_dummy
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

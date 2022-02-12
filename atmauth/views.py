@@ -18,9 +18,14 @@ class SigninApiView(ObtainAuthToken):
         if serializer.is_valid():
             card_num = serializer.validated_data.get('card_num')
             pin_num = serializer.validated_data.get('pin_num')
+
+            # Based on the requirements,
+            # We assume that we can call some bank API that can tell if the PIN number is correct or not.
+            # And we do not store the pin number here.
             if not self._is_pin_valid(card_num, pin_num):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+            # If authorization by external bank API is successful, we save the user (card number) for this system.
             if not AtmUser.objects.filter(card_num=card_num).exists():
                 user = AtmUser.objects.create_user(
                     card_num=card_num, password=pin_num)
