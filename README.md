@@ -5,7 +5,8 @@
 1. Create docker image
    
     ```$ docker build -t atm-controller .```
-   - It will run tests & setup dummy data.
+   - It will run tests (8 test cases). 
+   - It will setup dummy data (10 users & 5 accounts for each user).
    - It will create a docker image named 'atm-controller'.
 
 
