@@ -108,7 +108,7 @@ class SampleApiTests(TestCase):
             content_type="application/json",
             **{'HTTP_AUTHORIZATION': f'Token {token}'},
         )
-        self.assertEquals(withdraw_response.status_code, 400)
+        self.assertEquals(withdraw_response.status_code, 422)
         self.assertEquals(withdraw_response.data['detail'], 'Balance not sufficient.')
 
         account_response = self.client.get(

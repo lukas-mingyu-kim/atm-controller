@@ -78,7 +78,7 @@ class DepositWithdrawApiView(APIView):
                     if account.balance - amount < 0:
                         return Response(
                             {'detail': "Balance not sufficient."},
-                            status=status.HTTP_400_BAD_REQUEST
+                            status=status.HTTP_422_UNPROCESSABLE_ENTITY
                         )
                     if not self._can_withdraw_from_bin(amount):
                         return Response(
