@@ -19,8 +19,8 @@
 (Click to see details.)
 
 * [Sign In](docs/sign_in.md) : `[POST] /auth/signin`
-* [List Accounts](docs/list_account.md) : `[GET] /api/accounts`
-* [Get an Account](docs/get_accounts.md) : `[GET] /api/accounts/<account_id>`
+* [List Accounts](docs/list_accounts.md) : `[GET] /api/accounts`
+* [Get an Account](docs/get_account.md) : `[GET] /api/accounts/<account_id>`
 * [Deposit to an Account](docs/deposit.md) : `[PATCH] /api/accounts/<account_id>/deposit`
 * [Withdraw from an Account](docs/withdraw.md) : `[PATCH] /api/accounts/<account_id>/withdraw`
 
